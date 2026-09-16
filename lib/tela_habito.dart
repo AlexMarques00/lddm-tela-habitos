@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:tela_habitos/main.dart';
 
 class TelaHabito extends StatelessWidget {
+  const TelaHabito({super.key, required this.habito});
+  final Habito habito;
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('< Beber água')),
+    appBar: AppBar(title: Text(habito.nome)),
     body: SingleChildScrollView(
       child: Column(
         children: [
           Stack(
             children: [
-              Image.asset('assets/cabecalho.jpg', height: 100, width: 800, fit: BoxFit.cover),
+              Image.asset('assets/cabecalho.jpg', height: 100, width: double.infinity, fit: BoxFit.cover),
               const Positioned(
                 top: 0,
                 right: 0,
                 child: Icon(
-                  Icons.star, 
+                  Icons.mood, 
                   size: 50, 
                   color: Colors.yellow,
                 ),
@@ -29,16 +32,20 @@ class TelaHabito extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              const Positioned(
-                top: 30,
+              Positioned(
+                top: 25,
                 left: 25,
-                child: Text('H2O', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                child: Icon(
+                  habito.icone, 
+                  size: 50, 
+                  color: Colors.black,
+                ),
               ),
-              const Positioned(
+              Positioned(
                 top: 20,
                 left: 100,
                 child: Text(
-                  'Beber água', 
+                  habito.nome, 
                   style: TextStyle(
                     fontSize: 24, 
                     fontWeight: FontWeight.bold,
@@ -46,11 +53,11 @@ class TelaHabito extends StatelessWidget {
                   )
                 )
               ),
-              const Positioned(
+              Positioned(
                 top: 50,
-                left: 110,
+                left: 100,
                 child: Text(
-                  'Meta: 8 copos por dia', 
+                  habito.meta, 
                   style: TextStyle(
                     color: Colors.white
                   )
@@ -82,41 +89,33 @@ class TelaHabito extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          Card(
-            margin: const EdgeInsets.all(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Sobre esse hábito', 
-                    style: TextStyle(
-                      fontSize: 18, 
-                      fontWeight: FontWeight.bold
-                    )
-                  ),
-                  SizedBox(height: 8),
-                  Text('Beber agua ao longo do dia ajuda a manter a concentração e o bem-estar.'),
-                  SizedBox(height: 8),
-                  
-                ],
+          SizedBox(
+            width: double.infinity, 
+            child: Card(
+              margin: const EdgeInsets.all(16),
+
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Sobre esse hábito', 
+                      style: TextStyle(
+                        fontSize: 18, 
+                        fontWeight: FontWeight.bold
+                      )
+                    ),
+                    SizedBox(height: 8),
+                    Text(habito.descricao),
+                    SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
           ),
         ],
       ),
-    )
+    ),
   );
 }
-
-/*
-Scaffold
-└── SingleChildScrollView
-    └── Column
-        ├── Stack              imagem do cabeçalho com ícone sobreposto
-        ├── SizedBox           espaço
-        ├── Row                três indicadores, cada um em Expanded
-        ├── SizedBox
-        └── Card               bloco de texto
-*/
