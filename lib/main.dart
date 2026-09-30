@@ -11,6 +11,10 @@ void main() {
   );
 }
 
+void Priorizar(Habito h, List<Habito> list){
+
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -58,7 +62,7 @@ class _MyAppState extends State<MyApp> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TelaHabito(habito: h),
+                        builder: (context) => TelaHabito(habito: h, pos: index, list: _listaHabitos),
                       ),
                     );
                   },
@@ -69,15 +73,13 @@ class _MyAppState extends State<MyApp> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            // Aguarda o retorno do novo hábito da TelaNovoHabito
             final novo = await Navigator.push<Habito>(
               context,
               MaterialPageRoute(builder: (_) => TelaNovoHabito()),
             );
             
-            if (!mounted) return; // Garante que a tela ainda está ativa
+            if (!mounted) return; 
 
-            // Se o usuário preencheu e salvou um hábito novo, adiciona à lista
             if (novo != null) {
               setState(() {
                 _listaHabitos.add(novo);
@@ -93,19 +95,18 @@ class Habito {
   final String nome;
   final String meta;
   final IconData icone;
-  final String sigla;
   final String descricao;
 
-  const Habito(this.nome, this.meta, this.icone, this.sigla, this.descricao);
+  const Habito(this.nome, this.meta, this.icone, this.descricao);
 }
 
 Future<List<Habito>> carregarHabitos() async {
-  await Future.delayed(const Duration(milliseconds: 300));
+  await Future.delayed(const Duration(milliseconds: 10));
 
   return [
-    const Habito('Beber água', 'Meta: 8 copos por dia', Icons.local_drink, 'H2O', 'Beber água ao longo do dia ajuda a manter a concentração e o bem-estar.'),
-    const Habito('Ler', 'Meta: 20 páginas por dia', Icons.menu_book, 'BOOK', 'Ler por pelo menos 30 minutos por dia melhora a concentração e o vocabulário.'),
-    const Habito('Caminhar', 'Meta: 30 minutos por dia', Icons.directions_walk, 'WALK', 'Caminhar diariamente melhora a saúde física e mental.'),
-    const Habito('Dormir cedo', 'Meta: antes das 23h', Icons.bedtime, 'SLEEP', 'Dormir cedo ajuda a manter um ciclo de sono saudável.'),
+    const Habito('Beber água', 'Meta: 8 copos por dia', Icons.local_drink, 'Beber água ao longo do dia ajuda a manter a concentração e o bem-estar.'),
+    const Habito('Ler', 'Meta: 20 páginas por dia', Icons.menu_book, 'Ler por pelo menos 30 minutos por dia melhora a concentração e o vocabulário.'),
+    const Habito('Caminhar', 'Meta: 30 minutos por dia', Icons.directions_walk, 'Caminhar diariamente melhora a saúde física e mental.'),
+    const Habito('Dormir cedo', 'Meta: antes das 23h', Icons.bedtime, 'Dormir cedo ajuda a manter um ciclo de sono saudável.'),
   ];
 }

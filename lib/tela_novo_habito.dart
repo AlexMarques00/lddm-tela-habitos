@@ -46,17 +46,11 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
 
   void _salvarHabito() {
     if (_formKey.currentState!.validate()) {
-      // Gera uma sigla simples baseada nas primeiras letras do nome (ou 'HAB' se for curto)
-      String sigla = _nomeController.text.isNotEmpty 
-          ? _nomeController.text.substring(0, _nomeController.text.length >= 3 ? 3 : _nomeController.text.length).toUpperCase() 
-          : 'HAB';
 
-      // Cria o objeto Habito com os dados inseridos pelo usuário
       final novoHabito = Habito(
         _nomeController.text,
         "Meta: ${_metaController.text}",
         _iconeSelecionado,
-        sigla,
         _descricaoController.text,
       );
 

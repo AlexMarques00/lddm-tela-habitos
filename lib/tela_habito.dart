@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:tela_habitos/main.dart';
 
+void priorizar(Habito h, List<Habito> list){
+  list.remove(h);
+  list.insert(0, h);
+}
+
 class TelaHabito extends StatelessWidget {
-  const TelaHabito({super.key, required this.habito});
+  const TelaHabito({super.key, required this.habito, required this.pos, required this.list});
   final Habito habito;
+  final int pos;
+  final List<Habito> list;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -45,7 +52,7 @@ class TelaHabito extends StatelessWidget {
                 top: 20,
                 left: 100,
                 child: Text(
-                  habito.nome, 
+                  "${habito.nome} [$pos]", 
                   style: TextStyle(
                     fontSize: 24, 
                     fontWeight: FontWeight.bold,
@@ -61,29 +68,6 @@ class TelaHabito extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white
                   )
-                )
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: const [
-              Expanded(
-                child: Text(
-                  '12 dias seguidos', 
-                  textAlign: TextAlign.center
-                )
-              ),
-              Expanded(
-                child: Text(
-                  '5/8 hoje', 
-                  textAlign: TextAlign.center
-                  )
-                ),
-              Expanded(
-                child: Text(
-                  '62% no mês', 
-                  textAlign: TextAlign.center
                 )
               ),
             ],
@@ -117,5 +101,10 @@ class TelaHabito extends StatelessWidget {
         ],
       ),
     ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () async {
+        priorizar(habito, list);
+      }
+    )
   );
 }
