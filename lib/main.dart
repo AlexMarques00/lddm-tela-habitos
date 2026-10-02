@@ -11,8 +11,10 @@ void main() {
   );
 }
 
-void Priorizar(Habito h, List<Habito> list){
-
+// Move o hábito para o início da lista
+void Priorizar(Habito h, List<Habito> list) {
+  list.remove(h);
+  list.insert(0, h);
 }
 
 class MyApp extends StatefulWidget {
@@ -58,13 +60,25 @@ class _MyAppState extends State<MyApp> {
                   leading: Icon(h.icone),
                   title: Text(h.nome),
                   subtitle: Text(h.meta),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    // Aguarda o resultado retornado pela TelaHabito
+                    final alterou = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TelaHabito(habito: h, pos: index, list: _listaHabitos),
+                        builder: (context) => TelaHabito(
+                          habito: h, 
+                          pos: index, 
+                          list: _listaHabitos,
+                        ),
                       ),
                     );
+
+                    if (!mounted) return;
+
+                    // Se a priorização foi acionada, atualiza a interface
+                    if (alterou == true) {
+                      setState(() {});
+                    }
                   },
                 );
               },
@@ -75,7 +89,7 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             final novo = await Navigator.push<Habito>(
               context,
-              MaterialPageRoute(builder: (_) => TelaNovoHabito()),
+              MaterialPageRoute(builder: (_) => const TelaNovoHabito()),
             );
             
             if (!mounted) return; 
