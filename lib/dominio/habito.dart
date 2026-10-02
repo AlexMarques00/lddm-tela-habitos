@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart'; // Apenas para ter o tipo IconData
+import 'package:flutter/widgets.dart';
 
 class Habito {
   final String nome;

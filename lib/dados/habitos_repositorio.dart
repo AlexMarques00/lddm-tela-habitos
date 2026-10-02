@@ -29,9 +29,8 @@ class HabitosRepositorio {
     ),
   ];
 
-  // Métodos assíncronos prontos para receber banco de dados ou API
   Future<List<Habito>> carregar() async {
-    await Future.delayed(const Duration(milliseconds: 100)); // Simula I/O
+    await Future.delayed(const Duration(milliseconds: 100));
     return List.of(_memoria);
   }
 
