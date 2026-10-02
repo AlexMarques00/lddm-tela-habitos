@@ -1,126 +1,130 @@
 import 'package:flutter/material.dart';
-import 'tela_habito.dart';
-import 'tela_novo_habito.dart';
+import 'package:provider/provider.dart';
+
+import 'dados/habitos_repositorio.dart';
+import 'dominio/habitos_store.dart';
+import 'ui/tela_habito.dart';
+import 'ui/tela_novo_habito.dart';
 
 void main() {
+  final repo = HabitosRepositorio();
+
   runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MyApp(),
+    ChangeNotifierProvider(
+      create: (_) => HabitosStore(repo)..carregar(),
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: TelaPrincipal(),
+      ),
     ),
   );
 }
 
-// Move o hábito para o início da lista
-void Priorizar(Habito h, List<Habito> list) {
-  list.remove(h);
-  list.insert(0, h);
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class TelaPrincipal extends StatefulWidget {
+  const TelaPrincipal({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<TelaPrincipal> createState() => _TelaPrincipalState();
 }
 
-class _MyAppState extends State<MyApp> {
-  late Future<List<Habito>> _futuroHabitos;
-  List<Habito> _listaHabitos = [];
+class _TelaPrincipalState extends State<TelaPrincipal> {
+  int _aba = 0;
 
   @override
-  void initState() {
-    super.initState();
-    _futuroHabitos = carregarHabitos().then((habitos) {
-      _listaHabitos = habitos;
-      return _listaHabitos;
-    });
+  Widget build(BuildContext context) {
+    final telas = [
+      const TelaListaHabitos(),
+      const TelaResumo(),
+      const Center(child: Text('Tela de Perfil')),
+    ];
+
+    return Scaffold(
+      body: telas[_aba],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _aba,
+        onDestinationSelected: (i) => setState(() => _aba = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.list), label: 'Hábitos'),
+          NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Resumo'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Perfil'),
+        ],
+      ),
+    );
   }
+}
+
+class TelaListaHabitos extends StatelessWidget {
+  const TelaListaHabitos({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Meus Hábitos')),
-        body: FutureBuilder<List<Habito>>(
-          future: _futuroHabitos,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return const Center(child: Text('Não foi possível carregar'));
-            }
-            if (_listaHabitos.isEmpty) {
-              return const Center(child: Text('Nenhum hábito ainda'));
-            }
-            return ListView.builder(
-              itemCount: _listaHabitos.length,
+  Widget build(BuildContext context) {
+    final habitos = context.watch<HabitosStore>().habitos;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Meus Hábitos')),
+      body: habitos.isEmpty
+          ? const Center(child: Text('Nenhum hábito cadastrado'))
+          : ListView.builder(
+              itemCount: habitos.length,
               itemBuilder: (context, index) {
-                final h = _listaHabitos[index];
+                final h = habitos[index];
                 return ListTile(
                   leading: Icon(h.icone),
                   title: Text(h.nome),
                   subtitle: Text(h.meta),
-                  onTap: () async {
-                    // Aguarda o resultado retornado pela TelaHabito
-                    final alterou = await Navigator.push<bool>(
+                  onTap: () {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TelaHabito(
-                          habito: h, 
-                          pos: index, 
-                          list: _listaHabitos,
-                        ),
+                        builder: (_) => TelaHabito(habito: h, pos: index),
                       ),
                     );
-
-                    if (!mounted) return;
-
-                    // Se a priorização foi acionada, atualiza a interface
-                    if (alterou == true) {
-                      setState(() {});
-                    }
                   },
                 );
               },
-            );
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            final novo = await Navigator.push<Habito>(
-              context,
-              MaterialPageRoute(builder: (_) => const TelaNovoHabito()),
-            );
-            
-            if (!mounted) return; 
-
-            if (novo != null) {
-              setState(() {
-                _listaHabitos.add(novo);
-              });
-            }
-          },
-          child: const Icon(Icons.add),
-        ),
-      );
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TelaNovoHabito()),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
 }
 
-class Habito {
-  final String nome;
-  final String meta;
-  final IconData icone;
-  final String descricao;
+class TelaResumo extends StatelessWidget {
+  const TelaResumo({super.key});
 
-  const Habito(this.nome, this.meta, this.icone, this.descricao);
-}
+  @override
+  Widget build(BuildContext context) {
+    final total = context.watch<HabitosStore>().habitos.length;
 
-Future<List<Habito>> carregarHabitos() async {
-  await Future.delayed(const Duration(milliseconds: 10));
-
-  return [
-    const Habito('Beber água', 'Meta: 8 copos por dia', Icons.local_drink, 'Beber água ao longo do dia ajuda a manter a concentração e o bem-estar.'),
-    const Habito('Ler', 'Meta: 20 páginas por dia', Icons.menu_book, 'Ler por pelo menos 30 minutos por dia melhora a concentração e o vocabulário.'),
-    const Habito('Caminhar', 'Meta: 30 minutos por dia', Icons.directions_walk, 'Caminhar diariamente melhora a saúde física e mental.'),
-    const Habito('Dormir cedo', 'Meta: antes das 23h', Icons.bedtime, 'Dormir cedo ajuda a manter um ciclo de sono saudável.'),
-  ];
+    return Scaffold(
+      appBar: AppBar(title: const Text('Resumo')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Total de Hábitos Ativos:',
+              style: TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '$total',
+              style: const TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

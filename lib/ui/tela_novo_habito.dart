@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:tela_habitos/main.dart';
+import 'package:provider/provider.dart';
+
+import '../dominio/habito.dart';
+import '../dominio/habitos_store.dart';
 
 class TelaNovoHabito extends StatefulWidget {
-  const TelaNovoHabito({Key? key}) : super(key: key);
+  const TelaNovoHabito({super.key});
 
   @override
   State<TelaNovoHabito> createState() => _TelaNovoHabitoState();
 }
 
 class _TelaNovoHabitoState extends State<TelaNovoHabito> {
-  // Chave para validar o formulário
   final _formKey = GlobalKey<FormState>();
-  
-  // Controladores para os campos de texto
-  final _nomeController = TextEditingController();
-  final _metaController = TextEditingController();
-  final _descricaoController = TextEditingController();
-  
-  // Ícone selecionado por padrão (começa com a estrela)
+
+  late final TextEditingController _nomeController;
+  late final TextEditingController _metaController;
+  late final TextEditingController _descricaoController;
+
   IconData _iconeSelecionado = Icons.star;
 
-  // Lista de ícones disponíveis para o usuário escolher
-  final List<IconData> _iconesDisponiveis = [
+  final List<IconData> _iconesDisponiveis = const [
     Icons.star,
     Icons.local_drink,
     Icons.menu_book,
@@ -37,6 +36,14 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _nomeController = TextEditingController();
+    _metaController = TextEditingController();
+    _descricaoController = TextEditingController();
+  }
+
+  @override
   void dispose() {
     _nomeController.dispose();
     _metaController.dispose();
@@ -46,7 +53,6 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
 
   void _salvarHabito() {
     if (_formKey.currentState!.validate()) {
-
       final novoHabito = Habito(
         _nomeController.text,
         "Meta: ${_metaController.text}",
@@ -54,17 +60,15 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
         _descricaoController.text,
       );
 
-      // Retorna o objeto para a tela anterior (MyApp)
-      Navigator.pop(context, novoHabito); 
+      context.read<HabitosStore>().adicionar(novoHabito);
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Adicionar Novo Hábito'),
-      ),
+      appBar: AppBar(title: const Text('Adicionar Novo Hábito')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -72,7 +76,6 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Campo para o Nome do Hábito
               TextFormField(
                 controller: _nomeController,
                 decoration: const InputDecoration(
@@ -89,8 +92,6 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Campo para a Meta
               TextFormField(
                 controller: _metaController,
                 decoration: const InputDecoration(
@@ -107,8 +108,6 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Campo para Descrição / Motivação
               TextFormField(
                 controller: _descricaoController,
                 maxLines: 3,
@@ -120,22 +119,19 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Seletor de Ícone (Grid Responsiva)
               const Text(
                 'Escolha um Ícone:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              
               GridView.builder(
-                shrinkWrap: true, // Faz a grid ocupar apenas o espaço necessário
-                physics: const NeverScrollableScrollPhysics(), // Desativa o scroll próprio da grid (usa o do SingleChildScrollView)
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 70, // Largura máxima de cada item; criará mais ou menos colunas dependendo da tela
+                  maxCrossAxisExtent: 70,
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
-                  childAspectRatio: 1, // Mantém os quadradinhos proporcionais (1:1)
+                  childAspectRatio: 1,
                 ),
                 itemCount: _iconesDisponiveis.length,
                 itemBuilder: (context, index) {
@@ -150,16 +146,22 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: estaSelecionado ? Colors.deepPurple.withOpacity(0.2) : Colors.grey[200],
+                        color: estaSelecionado
+                            ? Colors.deepPurple.withOpacity(0.2)
+                            : Colors.grey[200],
                         border: Border.all(
-                          color: estaSelecionado ? Colors.deepPurple : Colors.transparent,
+                          color: estaSelecionado
+                              ? Colors.deepPurple
+                              : Colors.transparent,
                           width: 2,
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         icone,
-                        color: estaSelecionado ? Colors.deepPurple : Colors.black54,
+                        color: estaSelecionado
+                            ? Colors.deepPurple
+                            : Colors.black54,
                         size: 28,
                       ),
                     ),
@@ -167,8 +169,6 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
                 },
               ),
               const SizedBox(height: 32),
-
-              // Botão de Salvar
               ElevatedButton.icon(
                 onPressed: _salvarHabito,
                 icon: const Icon(Icons.check),

@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:tela_habitos/main.dart';
+import 'package:provider/provider.dart';
 
-void priorizar(Habito h, List<Habito> list) {
-  list.remove(h);
-  list.insert(0, h);
-}
-
-void deletar(Habito h, List<Habito> list) {
-  list.remove(h);
-}
+import '../dominio/habito.dart';
+import '../dominio/habitos_store.dart';
 
 class TelaHabito extends StatelessWidget {
   const TelaHabito({
     super.key,
     required this.habito,
     required this.pos,
-    required this.list,
   });
 
   final Habito habito;
   final int pos;
-  final List<Habito> list;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -35,6 +27,10 @@ class TelaHabito extends StatelessWidget {
                     height: 110,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 110,
+                      color: Colors.deepPurple,
+                    ),
                   ),
                   Positioned(
                     top: 0,
@@ -119,69 +115,49 @@ class TelaHabito extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    // Botão Priorizar
                     Expanded(
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
                           foregroundColor: Colors.white,
                           minimumSize: const Size.fromHeight(50),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                         icon: const Icon(Icons.priority_high, size: 20),
-                        label: const Text(
-                          'Priorizar',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                        label: const Text('Priorizar'),
                         onPressed: () {
-                          priorizar(habito, list);
+                          context.read<HabitosStore>().priorizar(habito);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                '${habito.nome} foi priorizado!',
-                              ),
+                              content: Text('${habito.nome} foi priorizado!'),
                             ),
                           );
-                          Navigator.pop(context, true);
+                          Navigator.pop(context);
                         },
                       ),
                     ),
-                    const SizedBox(width: 12), // Espaçamento entre os botões
-                    // Botão Deletar (Cor Negativa / Destrutiva)
+                    const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red.shade700,
                           foregroundColor: Colors.white,
                           minimumSize: const Size.fromHeight(50),
-                          padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                         icon: const Icon(Icons.delete, size: 20),
-                        label: const Text(
-                          'Deletar',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                        label: const Text('Deletar'),
                         onPressed: () async {
-                          // Exibe o diálogo de confirmação
                           final confirmou = await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text('Confirmar exclusão'),
-                              content: Text('Tem certeza que deseja apagar o hábito "${habito.nome}"?'),
+                              content: Text(
+                                  'Tem certeza que deseja apagar "${habito.nome}"?'),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, false),
@@ -198,19 +174,14 @@ class TelaHabito extends StatelessWidget {
                             ),
                           );
 
-                          if (confirmou == true) {
-                            deletar(habito, list);
-                            
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    '${habito.nome} foi removido!',
-                                  ),
-                                ),
-                              );
-                              Navigator.pop(context, true);
-                            }
+                          if (confirmou == true && context.mounted) {
+                            context.read<HabitosStore>().remover(habito);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${habito.nome} foi removido!'),
+                              ),
+                            );
+                            Navigator.pop(context);
                           }
                         },
                       ),
