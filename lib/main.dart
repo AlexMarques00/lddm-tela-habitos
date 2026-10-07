@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'dados/habitos_repositorio.dart';
+import 'dados/preferencias_repositorio.dart';
 import 'dominio/habitos_store.dart';
 import 'ui/tela_habito.dart';
 import 'ui/tela_novo_habito.dart';
+import 'ui/tela_resumo.dart';
 
 void main() {
   final repo = HabitosRepositorio();
@@ -28,7 +30,26 @@ class TelaPrincipal extends StatefulWidget {
 }
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
+  final _prefsRepo = PreferenciasRepositorio();
   int _aba = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarAba();
+  }
+
+  Future<void> _carregarAba() async {
+    final abaSalva = await _prefsRepo.lerUltimaAba();
+    setState(() {
+      _aba = abaSalva;
+    });
+  }
+
+  void _selecionarAba(int i) {
+    setState(() => _aba = i);
+    _prefsRepo.salvarUltimaAba(i);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +63,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       body: telas[_aba],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _aba,
-        onDestinationSelected: (i) => setState(() => _aba = i),
+        onDestinationSelected: _selecionarAba,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.list), label: 'Hábitos'),
           NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Resumo'),
@@ -91,39 +112,6 @@ class TelaListaHabitos extends StatelessWidget {
           );
         },
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class TelaResumo extends StatelessWidget {
-  const TelaResumo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final total = context.watch<HabitosStore>().habitos.length;
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Resumo')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Total de Hábitos Ativos:',
-              style: TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '$total',
-              style: const TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

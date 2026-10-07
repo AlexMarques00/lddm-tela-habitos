@@ -24,10 +24,8 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
     Icons.star,
     Icons.local_drink,
     Icons.menu_book,
-    Icons.directions_walk,
     Icons.bedtime,
     Icons.fitness_center,
-    Icons.self_improvement,
     Icons.restaurant,
     Icons.work,
     Icons.code,
@@ -54,17 +52,17 @@ class _TelaNovoHabitoState extends State<TelaNovoHabito> {
   void _salvarHabito() {
     if (_formKey.currentState!.validate()) {
       final novoHabito = Habito(
-        _nomeController.text,
-        "Meta: ${_metaController.text}",
-        _iconeSelecionado,
-        _descricaoController.text,
+        nome: _nomeController.text,
+        meta: "Meta: ${_metaController.text}",
+        icone: _iconeSelecionado,
+        descricao: _descricaoController.text,
       );
 
       context.read<HabitosStore>().adicionar(novoHabito);
       Navigator.pop(context);
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
