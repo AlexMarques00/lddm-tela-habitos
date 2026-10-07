@@ -48,6 +48,15 @@ class HabitosRepositorio {
     }
   }
 
+  Future<void> despriorizar(Habito h) async {
+    await Future.delayed(const Duration(milliseconds: 50));
+    final index = _memoria.indexOf(h);
+    if (index != -1) {
+      final item = _memoria.removeAt(index);
+      _memoria.insert(_memoria.length, item);
+    }
+  }
+
   Future<void> remover(Habito h) async {
     await Future.delayed(const Duration(milliseconds: 50));
     _memoria.remove(h);

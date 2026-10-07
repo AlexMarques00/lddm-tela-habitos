@@ -186,6 +186,30 @@ class TelaHabito extends StatelessWidget {
                         },
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        icon: const Icon(Icons.priority_high, size: 20),
+                        label: const Text('Despriorizar'),
+                        onPressed: () {
+                          context.read<HabitosStore>().despriorizar(habito);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${habito.nome} foi deixado para depois!'),
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
