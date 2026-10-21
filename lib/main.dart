@@ -3,17 +3,28 @@ import 'package:provider/provider.dart';
 
 import 'dados/habitos_repositorio.dart';
 import 'dados/preferencias_repositorio.dart';
+import 'dados/sugestoes_api.dart';
 import 'dominio/habitos_store.dart';
+import 'dominio/sugestoes_store.dart';
 import 'ui/tela_habito.dart';
 import 'ui/tela_novo_habito.dart';
 import 'ui/tela_resumo.dart';
+import 'ui/tela_sugestao.dart';
 
 void main() {
   final repo = HabitosRepositorio();
+  final api = SugestoesApi();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => HabitosStore(repo)..carregar(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => HabitosStore(repo)..carregar(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SugestoesStore(api),
+        ),
+      ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: TelaPrincipal(),
@@ -56,6 +67,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     final telas = [
       const TelaListaHabitos(),
       const TelaResumo(),
+      const TelaSugestoes(),
       const Center(child: Text('Tela de Perfil')),
     ];
 
@@ -67,6 +79,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.list), label: 'Hábitos'),
           NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Resumo'),
+          NavigationDestination(icon: Icon(Icons.lightbulb), label: 'Sugestões'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Perfil'),
         ],
       ),
